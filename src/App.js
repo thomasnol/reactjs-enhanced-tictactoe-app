@@ -1,6 +1,9 @@
 import React from 'react'
 import { useState } from 'react';
 
+const _numRows = 3; // number of rows in the board
+const _numCols = 3; // number of columns in the board
+
 function Square({value, onSquareClick }) {
   return (
     <button
@@ -35,8 +38,6 @@ function Board({ xIsNext, squares, onPlay }) {
 
   const createBoard = () => {
     let board = [];
-    const _numRows = 3;
-    const _numCols = 3;
     for (let i = 0; i < _numRows; i++) {
       let row = [];
       for (let j = 0; j < _numCols; j++) {
@@ -134,21 +135,67 @@ export default function Game() {
 }
 
 function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+  loop1: // continues outer loop
+  for (let i = 0; i < _numRows; i++) { // checks rows for winner
+    if (squares[i * _numCols] === null) {
+      continue;
+    }
+    for (let j = 0; j < _numCols; j++) {
+      if (squares[i * _numCols] !== squares[i * _numCols + j]) {
+        continue loop1;
+      }
+    }
+    return ("By rows: " + squares[i * _numCols]);
+  }
+
+  loop2: // continues outer loop
+  for (let i = 0; i < _numCols; i++) { // checks cols for winner
+    if (squares[i] === null) {
+      continue;
+    }
+    for (let j = 0; j < _numRows; j++) {
+      if (squares[i + j * _numCols] !== squares[i]) {
+        continue loop2;
+      }
+    }
+    return ("By columns: " + squares[i]);
+  }
+
+  //let diagSquares = [];
+  //for (let i = 0; i < 3; i++) {
+  //  diagSquares.push(i * (3+1));
+  //}
+  
+  // checks diag for winner
+  if (_numRows === _numCols) {
+    let hasDiagWinner = true;
+    if (squares[0] !== null) {
+      for (let i = 0; i < _numRows; i++) {
+        if (squares[i * (_numRows + 1)] !== squares[0]) {
+          hasDiagWinner = false;
+        }
+      }
+      if (hasDiagWinner === true) {
+        return ("By first diagonal: " + squares[0]);
+      }
+    }
+    hasDiagWinner = true;
+    if (squares[_numCols - 1] !== null) {
+      for (let i = 1; i <= _numRows; i++) {
+        if (squares[i * (_numCols - 1)] !== squares[_numCols - 1]) {
+          hasDiagWinner = false;
+        }
+      }
+      if (hasDiagWinner === true) {
+        return ("By second diagonal: " + squares[_numCols - 1]);
+      }
     }
   }
+  //for (let i = 0; i < lines.length; i++) { // hardset check for winner
+  //  const [a, b, c] = lines[i];
+  //  if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+  //    return squares[a];
+  //  }
+  //}
   return null;
 }

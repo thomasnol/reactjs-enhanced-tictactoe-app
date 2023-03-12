@@ -31,7 +31,11 @@ function Board({ xIsNext, squares, onPlay }) {
   const winner = calculateWinner(squares);
   let status;
   if (winner) {
-    status = 'Winner: ' + winner;
+    if (winner === 'Draw') {
+      status = 'Draw';
+    } else {
+      status = 'Winner: ' + winner;
+    }
   } else {
     status = 'Next player: ' + (xIsNext ? 'X' : 'O');
   }
@@ -135,6 +139,11 @@ export default function Game() {
 }
 
 function calculateWinner(squares) {
+  // check if draw
+  if (!squares.includes(null)) {
+    return "Draw";
+  }
+
   loop1: // continues outer loop
   for (let i = 0; i < _numRows; i++) { // checks rows for winner
     if (squares[i * _numCols] === null) {
@@ -191,11 +200,5 @@ function calculateWinner(squares) {
       }
     }
   }
-  //for (let i = 0; i < lines.length; i++) { // hardset check for winner
-  //  const [a, b, c] = lines[i];
-  //  if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-  //    return squares[a];
-  //  }
-  //}
   return null;
 }

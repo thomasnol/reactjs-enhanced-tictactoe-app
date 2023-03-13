@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 
 const numRows = 4;
 const numCols = 4;
-//const [numRows, setNumRows] = useState(4);
-//const [numCols, setNumCols] = useState(4);
 
 function Square({value, onSquareClick }) {
   return (
@@ -15,7 +13,7 @@ function Square({value, onSquareClick }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
   function handleClick(i) {
     if (squares[i] !== null || calculateWinner(squares)) {
       return;
@@ -58,7 +56,7 @@ function Board({ xIsNext, squares, onPlay }) {
   return (
     <div>
       <div className="status">{status}</div>
-      {createBoard()}
+      {createBoard(numRows, numCols)}
     </div>
   );
 }
@@ -73,6 +71,10 @@ function MoveList({ moves, incOrder, onOrder }) {
 }
 
 export default function Game() {
+  //const [numRows, setNumRows] = useState(4);
+  //const [numCols, setNumCols] = useState(4);
+  //const numRows = 4;
+  //const numCols = 4;
   const [history, setHistory] = useState([Array(numRows * numCols).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
@@ -127,7 +129,7 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} numRows={numRows} numCols={numCols} />
       </div>
       <div className="game-info">
         <MoveList moves={moves} incOrder={incOrder} setIncOrder={setIncOrder} onOrder={handleOrder} />

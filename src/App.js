@@ -1,8 +1,9 @@
-import React from 'react'
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-const _numRows = 3; // number of rows in the board
-const _numCols = 3; // number of columns in the board
+const numRows = 4;
+const numCols = 4;
+//const [numRows, setNumRows] = useState(4);
+//const [numCols, setNumCols] = useState(4);
 
 function Square({value, onSquareClick }) {
   return (
@@ -42,11 +43,11 @@ function Board({ xIsNext, squares, onPlay }) {
 
   const createBoard = () => {
     let board = [];
-    for (let i = 0; i < _numRows; i++) {
+    for (let i = 0; i < numRows; i++) {
       let row = [];
-      for (let j = 0; j < _numCols; j++) {
+      for (let j = 0; j < numCols; j++) {
         row.push(
-          <Square value={squares[i * _numRows + j]} onSquareClick={() => handleClick(i * _numRows + j)} />
+          <Square value={squares[i * numRows + j]} onSquareClick={() => handleClick(i * numRows + j)} />
         );
       }
       board.push(<div className="board-row">{row}</div>);
@@ -62,8 +63,17 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+function MoveList({ moves, incOrder, onOrder }) {
+  return (
+    <div>
+      <button onClick={() => onOrder(moves)}>Change Order of Display</button>
+      <ol reversed={incOrder ? null : true}>{moves}</ol>
+    </div>
+  );
+}
+
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([Array(numRows * numCols).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
@@ -75,14 +85,21 @@ export default function Game() {
     setCurrentMove(nextHistory.length - 1);
   }
 
+  function handleOrder(moves) {
+    console.log(incOrder, "moves: ", moves);
+    setIncOrder(!incOrder);
+    moves = moves.slice().reverse();
+    console.log(incOrder, "moves reversed: ", moves);
+  }
+
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
   }
 
   const moves = history.map((iterator, move) => {
     let description;
-    let accMove = 0;
-    if (incOrder === true) {
+    let accMove;
+    if (incOrder) {
       accMove = move;
     } else {
       accMove = history.length - move - 1;
@@ -107,35 +124,16 @@ export default function Game() {
     );
   });
 
-  if (incOrder === true) {
-    return (
-      <div className="game">
-        <div className="game-board">
-          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-        </div>
-        <div className="game-info">
-          <ol>{moves}</ol>
-        </div>
-        <div>
-          <button onClick={() => setIncOrder(!incOrder)}>Change Order of Display</button>
-        </div>
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
-    );
-  } else {
-    return (
-      <div className="game">
-        <div className="game-board">
-          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-        </div>
-        <div className="game-info">
-          <ol reversed>{moves}</ol>
-        </div>
-        <div>
-          <button onClick={() => setIncOrder(!incOrder)}>Change Order of Display</button>
-        </div>
+      <div className="game-info">
+        <MoveList moves={moves} incOrder={incOrder} setIncOrder={setIncOrder} onOrder={handleOrder} />
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 function calculateWinner(squares) {
@@ -145,42 +143,37 @@ function calculateWinner(squares) {
   }
 
   loop1: // continues outer loop
-  for (let i = 0; i < _numRows; i++) { // checks rows for winner
-    if (squares[i * _numCols] === null) {
+  for (let i = 0; i < numRows; i++) { // checks rows for winner
+    if (squares[i * numCols] === null) {
       continue;
     }
-    for (let j = 0; j < _numCols; j++) {
-      if (squares[i * _numCols] !== squares[i * _numCols + j]) {
+    for (let j = 0; j < numCols; j++) {
+      if (squares[i * numCols] !== squares[i * numCols + j]) {
         continue loop1;
       }
     }
-    return ("By rows: " + squares[i * _numCols]);
+    return ("By rows: " + squares[i * numCols]);
   }
 
   loop2: // continues outer loop
-  for (let i = 0; i < _numCols; i++) { // checks cols for winner
+  for (let i = 0; i < numCols; i++) { // checks cols for winner
     if (squares[i] === null) {
       continue;
     }
-    for (let j = 0; j < _numRows; j++) {
-      if (squares[i + j * _numCols] !== squares[i]) {
+    for (let j = 0; j < numRows; j++) {
+      if (squares[i + j * numCols] !== squares[i]) {
         continue loop2;
       }
     }
     return ("By columns: " + squares[i]);
   }
-
-  //let diagSquares = [];
-  //for (let i = 0; i < 3; i++) {
-  //  diagSquares.push(i * (3+1));
-  //}
   
   // checks diag for winner
-  if (_numRows === _numCols) {
+  if (numRows === numCols) {
     let hasDiagWinner = true;
     if (squares[0] !== null) {
-      for (let i = 0; i < _numRows; i++) {
-        if (squares[i * (_numRows + 1)] !== squares[0]) {
+      for (let i = 0; i < numRows; i++) {
+        if (squares[i * (numRows + 1)] !== squares[0]) {
           hasDiagWinner = false;
         }
       }
@@ -189,14 +182,14 @@ function calculateWinner(squares) {
       }
     }
     hasDiagWinner = true;
-    if (squares[_numCols - 1] !== null) {
-      for (let i = 1; i <= _numRows; i++) {
-        if (squares[i * (_numCols - 1)] !== squares[_numCols - 1]) {
+    if (squares[numCols - 1] !== null) {
+      for (let i = 1; i <= numRows; i++) {
+        if (squares[i * (numCols - 1)] !== squares[numCols - 1]) {
           hasDiagWinner = false;
         }
       }
       if (hasDiagWinner === true) {
-        return ("By second diagonal: " + squares[_numCols - 1]);
+        return ("By second diagonal: " + squares[numCols - 1]);
       }
     }
   }

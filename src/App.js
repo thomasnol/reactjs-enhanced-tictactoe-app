@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const numRows = 4;
-const numCols = 4;
+//const numRows = 4;
+//const numCols = 4;
 
 function Square({value, onSquareClick }) {
   return (
@@ -15,7 +15,7 @@ function Square({value, onSquareClick }) {
 
 function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
   function handleClick(i) {
-    if (squares[i] !== null || calculateWinner(squares)) {
+    if (squares[i] !== null || calculateWinner(squares, numRows, numCols)) {
       return;
     }
     const nextSquares = squares.slice();
@@ -27,7 +27,7 @@ function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
     onPlay(nextSquares);
   }
 
-  const winner = calculateWinner(squares);
+  const winner = calculateWinner(squares, numRows, numCols);
   let status;
   if (winner) {
     if (winner === 'Draw') {
@@ -71,8 +71,8 @@ function MoveList({ moves, incOrder, onOrder }) {
 }
 
 export default function Game() {
-  //const [numRows, setNumRows] = useState(4);
-  //const [numCols, setNumCols] = useState(4);
+  const [numRows, setNumRows] = useState(4);
+  const [numCols, setNumCols] = useState(4);
   //const numRows = 4;
   //const numCols = 4;
   const [history, setHistory] = useState([Array(numRows * numCols).fill(null)]);
@@ -134,11 +134,16 @@ export default function Game() {
       <div className="game-info">
         <MoveList moves={moves} incOrder={incOrder} setIncOrder={setIncOrder} onOrder={handleOrder} />
       </div>
+      <div class="slidecontainer">
+        <input type="range" min="2" max="14" value="4" class="slider" id="myRange" />
+        <p>Value: <span id="accValue"></span></p>
+        <script type="text/javascript" src="slider.js"></script>
+      </div>
     </div>
   );
 }
 
-function calculateWinner(squares) {
+function calculateWinner(squares, numRows, numCols) {
   // check if draw
   if (!squares.includes(null)) {
     return "Draw";
@@ -196,4 +201,19 @@ function calculateWinner(squares) {
     }
   }
   return null;
+}
+
+function Slider() {
+  const slider = document.getElementById("myRange");
+  const output = document.getElementById("accValue");
+  output.innerHTML = slider.value; // Display the default slider value
+  slider.oninput = function() {output.innerHTML = this.value}
+  
+  return (
+    <div>
+      <input type="range" min="2" max="14" value="4" class="slider" id="myRange" />
+      <p>Value: <span id="accValue"></span></p>
+      <script type="text/javascript" src="slider.js"></script>
+    </div>
+  );
 }

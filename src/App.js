@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "./styles.css";
 
 //const numRows = 4;
 //const numCols = 4;
@@ -135,9 +136,7 @@ export default function Game() {
         <MoveList moves={moves} incOrder={incOrder} setIncOrder={setIncOrder} onOrder={handleOrder} />
       </div>
       <div class="slidecontainer">
-        <input type="range" min="2" max="14" value="4" class="slider" id="myRange" />
-        <p>Value: <span id="accValue"></span></p>
-        <script type="text/javascript" src="slider.js"></script>
+        <Slider />
       </div>
     </div>
   );
@@ -204,16 +203,17 @@ function calculateWinner(squares, numRows, numCols) {
 }
 
 function Slider() {
-  const slider = document.getElementById("myRange");
-  const output = document.getElementById("accValue");
-  output.innerHTML = slider.value; // Display the default slider value
-  slider.oninput = function() {output.innerHTML = this.value}
-  
+  const [value,onChange]=useState(3);
   return (
-    <div>
-      <input type="range" min="2" max="14" value="4" class="slider" id="myRange" />
-      <p>Value: <span id="accValue"></span></p>
-      <script type="text/javascript" src="slider.js"></script>
+    <div className="slider-parent">
+      <input type="range" min="3" max="15" value={value}
+         onChange={({ target: { value: radius } }) => {
+                    onChange(radius);
+                  }}
+      />
+      <div className="buble"> 
+        Current size of board is {value}
+      </div>
     </div>
   );
 }

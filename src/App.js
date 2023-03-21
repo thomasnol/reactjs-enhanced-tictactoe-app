@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./styles.css";
 
-//const numRows = 4;
-//const numCols = 4;
 
 function Square({value, onSquareClick }) {
   return (
@@ -27,7 +25,7 @@ function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
     }
     onPlay(nextSquares);
   }
-
+  
   const winner = calculateWinner(squares, numRows, numCols);
   let status;
   if (winner) {
@@ -42,11 +40,13 @@ function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
 
   const createBoard = () => {
     let board = [];
+    console.log("numRows: ", numRows);
+    console.log("numCols: ", numCols);
     for (let i = 0; i < numRows; i++) {
       let row = [];
       for (let j = 0; j < numCols; j++) {
         row.push(
-          <Square value={squares[i * numRows + j]} onSquareClick={() => handleClick(i * numRows + j)} />
+          <Square value={squares[i * numCols + j]} onSquareClick={() => handleClick(i * numCols + j)} />
         );
       }
       board.push(<div className="board-row">{row}</div>);
@@ -57,7 +57,7 @@ function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
   return (
     <div>
       <div className="status">{status}</div>
-      {createBoard(numRows, numCols)}
+      {createBoard({numRows}, numCols)}
     </div>
   );
 }
@@ -70,17 +70,50 @@ function MoveList({ moves, incOrder, onOrder }) {
     </div>
   );
 }
+function RowSlider({ onRowEdit }) {
+  const [rowCount,setRowCount]=useState(3);
+  // trigger on component mount
+  useEffect(() => {
+    onRowEdit(rowCount);
+  });
+
+  return (
+    <div className="slider-parent">
+      <input className="inputSlider" type="range" min="3" max="15" value={rowCount}
+         onChange={({ target: { value: radius } }) => {
+                    setRowCount(radius);
+                  }}
+      />
+      <div className="buble"> 
+        Current # of rows is {rowCount}
+      </div>
+    </div>
+  );
+}
+function ColSlider() {
+  const [colCount,setColCount]=useState(3);
+  return (
+    <div className="slider-parent">
+      <input className="inputSlider" type="range" min="3" max="15" value={colCount}
+         onChange={({ target: { value: radius } }) => {
+                    setColCount(radius);
+                  }}
+      />
+      <div className="buble"> 
+        Current # of cols is {colCount}
+      </div>
+    </div>
+  );
+}
 
 export default function Game() {
   const [numRows, setNumRows] = useState(4);
-  const [numCols, setNumCols] = useState(4);
-  //const numRows = 4;
-  //const numCols = 4;
+  const [numCols, setNumCols] = useState(3);
   const [history, setHistory] = useState([Array(numRows * numCols).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
   const [incOrder, setIncOrder] = useState(true);
+  let currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
     const nextHistory = [].concat(history.slice(0, currentMove + 1), [nextSquares]);
@@ -93,6 +126,18 @@ export default function Game() {
     setIncOrder(!incOrder);
     moves = moves.slice().reverse();
     console.log(incOrder, "moves reversed: ", moves);
+  }
+
+  function handleRowEdit(rowNum) {
+    if (rowNum !== numRows) {
+      console.log("Change Detected:");
+      console.log("Row one: rowNum: ", rowNum);
+      console.log("Game one: numRows: ", numRows);
+      setNumRows(rowNum);
+      setHistory([Array(rowNum * numCols).fill(null)]);
+      setCurrentMove(0);
+      currentSquares = history[currentMove];
+    }
   }
 
   function jumpTo(nextMove) {
@@ -130,16 +175,16 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} numRows={numRows} numCols={numCols} />
-        Note: win by diagonals is <br/> only for square boards
+        <Board key="boardKey" xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} numRows={numRows} numCols={numCols} />
+        Note: win by diagonals is only for square boards
       </div>
       <div className="game-info">
         <MoveList moves={moves} incOrder={incOrder} setIncOrder={setIncOrder} onOrder={handleOrder} />
       </div>
-      <div class="slidecontainer">
-        <RowSlider numRows={numRows} />
+      <div className="slidecontainer">
+        <RowSlider onRowEdit={handleRowEdit} />
       </div>
-      <div class="slidecontainer">
+      <div className="slidecontainer">
         <ColSlider />
       </div>
     </div>
@@ -154,7 +199,7 @@ function calculateWinner(squares, numRows, numCols) {
 
   loop1: // continues outer loop
   for (let i = 0; i < numRows; i++) { // checks rows for winner
-    if (squares[i * numCols] === null) {
+    if (squares[i * numCols] === null || squares[i * numCols] === undefined) {
       continue;
     }
     for (let j = 0; j < numCols; j++) {
@@ -162,6 +207,7 @@ function calculateWinner(squares, numRows, numCols) {
         continue loop1;
       }
     }
+    console.log(squares[i * numCols]);
     return ("By rows: " + squares[i * numCols]);
   }
 
@@ -204,35 +250,4 @@ function calculateWinner(squares, numRows, numCols) {
     }
   }
   return null;
-}
-
-function RowSlider() {
-  const [rowCount,setRowCount]=useState(3);
-  return (
-    <div className="slider-parent">
-      <input className="inputSlider" type="range" min="3" max="15" value={rowCount}
-         onChange={({ target: { value: radius } }) => {
-                    setRowCount(radius);
-                  }}
-      />
-      <div className="buble"> 
-        Current # of rows is {rowCount}
-      </div>
-    </div>
-  );
-}
-function ColSlider() {
-  const [colCount,setColCount]=useState(3);
-  return (
-    <div className="slider-parent">
-      <input className="inputSlider" type="range" min="3" max="15" value={colCount}
-         onChange={({ target: { value: radius } }) => {
-                    setColCount(radius);
-                  }}
-      />
-      <div className="buble"> 
-        Current # of cols is {colCount}
-      </div>
-    </div>
-  );
 }

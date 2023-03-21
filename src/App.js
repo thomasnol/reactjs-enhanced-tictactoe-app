@@ -206,7 +206,7 @@ function Slider() {
   const [value,onChange]=useState(3);
   return (
     <div className="slider-parent">
-      <input type="range" min="3" max="15" value={value}
+      <input className="inputSlider" type="range" min="3" max="15" value={value}
          onChange={({ target: { value: radius } }) => {
                     onChange(radius);
                   }}

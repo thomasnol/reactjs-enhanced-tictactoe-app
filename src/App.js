@@ -131,12 +131,16 @@ export default function Game() {
     <div className="game">
       <div className="game-board">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} numRows={numRows} numCols={numCols} />
+        Note: win by diagonals is <br/> only for square boards
       </div>
       <div className="game-info">
         <MoveList moves={moves} incOrder={incOrder} setIncOrder={setIncOrder} onOrder={handleOrder} />
       </div>
       <div class="slidecontainer">
-        <Slider />
+        <RowSlider numRows={numRows} />
+      </div>
+      <div class="slidecontainer">
+        <ColSlider />
       </div>
     </div>
   );
@@ -202,17 +206,32 @@ function calculateWinner(squares, numRows, numCols) {
   return null;
 }
 
-function Slider() {
-  const [value,onChange]=useState(3);
+function RowSlider() {
+  const [rowCount,setRowCount]=useState(3);
   return (
     <div className="slider-parent">
-      <input className="inputSlider" type="range" min="3" max="15" value={value}
+      <input className="inputSlider" type="range" min="3" max="15" value={rowCount}
          onChange={({ target: { value: radius } }) => {
-                    onChange(radius);
+                    setRowCount(radius);
                   }}
       />
       <div className="buble"> 
-        Current size of board is {value}
+        Current # of rows is {rowCount}
+      </div>
+    </div>
+  );
+}
+function ColSlider() {
+  const [colCount,setColCount]=useState(3);
+  return (
+    <div className="slider-parent">
+      <input className="inputSlider" type="range" min="3" max="15" value={colCount}
+         onChange={({ target: { value: radius } }) => {
+                    setColCount(radius);
+                  }}
+      />
+      <div className="buble"> 
+        Current # of cols is {colCount}
       </div>
     </div>
   );

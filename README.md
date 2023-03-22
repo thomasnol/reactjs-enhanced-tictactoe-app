@@ -1,5 +1,7 @@
 # reactjs enhanced tictactoe app
- Testing with React.js
+ First React.js project.
+ 
+ Deployment [here](https://starlord678.github.io/reactjs-enhanced-tictactoe-app).
  
  Bootstrapped this project with [Create React App](https://github.com/facebookincubator/create-react-app).
 

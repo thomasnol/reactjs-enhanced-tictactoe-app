@@ -233,8 +233,6 @@ function calculateWinner(squares, numRows, numCols) {
       for (let i = 1; i < numRows; i++) {
         if (squares[i * (Number(numRows) + Number(1))] !== squares[0]) {
           hasDiagWinner = false;
-          console.log(i + " " + squares[i * (Number(numRows) + Number(1))] + " " + squares[0]);
-          console.log((Number(numRows) + Number(1)) + " " + (i * (Number(numRows) + Number(1))));
           break;
         }
       }

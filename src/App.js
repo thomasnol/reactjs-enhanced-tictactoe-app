@@ -40,8 +40,6 @@ function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
 
   const createBoard = () => {
     let board = [];
-    console.log("numRows: ", numRows);
-    console.log("numCols: ", numCols);
     for (let i = 0; i < numRows; i++) {
       let row = [];
       for (let j = 0; j < numCols; j++) {
@@ -57,7 +55,7 @@ function Board({ xIsNext, squares, onPlay, numRows, numCols }) {
   return (
     <div>
       <div className="status">{status}</div>
-      {createBoard({numRows}, numCols)}
+      {createBoard(numRows, numCols)}
     </div>
   );
 }
@@ -72,11 +70,9 @@ function MoveList({ moves, incOrder, onOrder }) {
 }
 function RowSlider({ onRowEdit }) {
   const [rowCount,setRowCount]=useState(3);
-  // trigger on component mount
   useEffect(() => {
     onRowEdit(rowCount);
   });
-
   return (
     <div className="slider-parent">
       <input className="inputSlider" type="range" min="3" max="15" value={rowCount}
@@ -90,8 +86,11 @@ function RowSlider({ onRowEdit }) {
     </div>
   );
 }
-function ColSlider() {
+function ColSlider({ onColEdit }) {
   const [colCount,setColCount]=useState(3);
+  useEffect(() => {
+    onColEdit(colCount);
+  });
   return (
     <div className="slider-parent">
       <input className="inputSlider" type="range" min="3" max="15" value={colCount}
@@ -122,19 +121,23 @@ export default function Game() {
   }
 
   function handleOrder(moves) {
-    console.log(incOrder, "moves: ", moves);
     setIncOrder(!incOrder);
     moves = moves.slice().reverse();
-    console.log(incOrder, "moves reversed: ", moves);
   }
 
   function handleRowEdit(rowNum) {
     if (rowNum !== numRows) {
-      console.log("Change Detected:");
-      console.log("Row one: rowNum: ", rowNum);
-      console.log("Game one: numRows: ", numRows);
       setNumRows(rowNum);
       setHistory([Array(rowNum * numCols).fill(null)]);
+      setCurrentMove(0);
+      currentSquares = history[currentMove];
+    }
+  }
+
+  function handleColEdit(colNum) {
+    if (colNum !== numCols) {
+      setNumCols(colNum);
+      setHistory([Array(numRows * colNum).fill(null)]);
       setCurrentMove(0);
       currentSquares = history[currentMove];
     }
@@ -177,15 +180,15 @@ export default function Game() {
       <div className="game-board">
         <Board key="boardKey" xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} numRows={numRows} numCols={numCols} />
         Note: win by diagonals is only for square boards
+        <div className="slidecontainer">
+        <ColSlider onColEdit={handleColEdit} />
+        </div>
       </div>
       <div className="game-info">
         <MoveList moves={moves} incOrder={incOrder} setIncOrder={setIncOrder} onOrder={handleOrder} />
       </div>
       <div className="slidecontainer">
         <RowSlider onRowEdit={handleRowEdit} />
-      </div>
-      <div className="slidecontainer">
-        <ColSlider />
       </div>
     </div>
   );
@@ -207,7 +210,6 @@ function calculateWinner(squares, numRows, numCols) {
         continue loop1;
       }
     }
-    console.log(squares[i * numCols]);
     return ("By rows: " + squares[i * numCols]);
   }
 
@@ -228,9 +230,12 @@ function calculateWinner(squares, numRows, numCols) {
   if (numRows === numCols) {
     let hasDiagWinner = true;
     if (squares[0] !== null) {
-      for (let i = 0; i < numRows; i++) {
-        if (squares[i * (numRows + 1)] !== squares[0]) {
+      for (let i = 1; i < numRows; i++) {
+        if (squares[i * (Number(numRows) + Number(1))] !== squares[0]) {
           hasDiagWinner = false;
+          console.log(i + " " + squares[i * (Number(numRows) + Number(1))] + " " + squares[0]);
+          console.log((Number(numRows) + Number(1)) + " " + (i * (Number(numRows) + Number(1))));
+          break;
         }
       }
       if (hasDiagWinner === true) {
@@ -242,6 +247,7 @@ function calculateWinner(squares, numRows, numCols) {
       for (let i = 1; i <= numRows; i++) {
         if (squares[i * (numCols - 1)] !== squares[numCols - 1]) {
           hasDiagWinner = false;
+          break;
         }
       }
       if (hasDiagWinner === true) {
